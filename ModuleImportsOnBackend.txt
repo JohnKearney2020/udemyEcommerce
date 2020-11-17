@@ -1,0 +1,7 @@
+To get the ability to use the import syntax on the backend like we use in the frontend, add:
+
+"type": "module"
+
+to the package.json file in your root directory.
+
+One big difference - when bringing in files (not packages like express, but files) they need the .js extension added to their names
