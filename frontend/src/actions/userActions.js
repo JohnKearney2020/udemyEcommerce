@@ -14,7 +14,6 @@ import {
   USER_UPDATE_PROFILE_REQUEST, 
   USER_UPDATE_PROFILE_SUCCESS, 
   USER_UPDATE_PROFILE_FAIL,
-  USER_UPDATE_PROFILE_RESET_SUCCESS,
   USER_LIST_REQUEST,
   USER_LIST_SUCCESS,
   USER_LIST_FAIL,
@@ -154,18 +153,19 @@ export const updateUserProfile = (user) => async (dispatch, getState) => {
       type: USER_UPDATE_PROFILE_SUCCESS,
       payload: data
     });
+    // We need to dispatch the login success again to update the global state with the user's correct info. If this is not done, it can cause issues. For excanple, if a user changes their name, that name change won't be reflected on the navbar until they log back out and back in
+    dispatch({
+      type: USER_LOGIN_SUCCESS,
+      payload: data
+    });
+    // Then we need to set the newly updated userinfo in local storage the same way we do when a user logs in
+    localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
     dispatch({
       type: USER_UPDATE_PROFILE_FAIL,
       payload: error.response && error.response.data.message ? error.response.data.message : error.message
     })
   }
-}
-
-export const successReset = () => async (dispatch) => {
-  dispatch({
-    type: USER_UPDATE_PROFILE_RESET_SUCCESS
-  });
 }
 
 //===============================================

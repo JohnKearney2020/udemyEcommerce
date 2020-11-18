@@ -6,8 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { getUserDetails, updateUserProfile, successReset } from '../actions/userActions';
+import { getUserDetails, updateUserProfile } from '../actions/userActions';
 import { listMyOrders } from '../actions/orderActions';
+import { USER_UPDATE_PROFILE_RESET } from '../constants/userConstants';
 
 const ProfileScreen = ({ location, history }) => {
   const [name, setName] = useState('');
@@ -31,14 +32,12 @@ const ProfileScreen = ({ location, history }) => {
   const { loading:loadingOrders, error:errorOrders, orders } = orderListMy;
 
   useEffect(() => {
-    // if(success === true){
-    //   dispatch(successReset());
-    // }
     //userInfo won't exist if a user is not logged in
     if(!userInfo){
       history.push('/login');
     } else {
-      if(!user.name) { //if we haven't fetched user details yet
+      if(!user || !user.name || success) { //if we haven't fetched user details yet
+        dispatch({ type: USER_UPDATE_PROFILE_RESET });
         //See userAction.js to see how 'profile' replaces /${id} in this case
         dispatch(getUserDetails('profile'));
         dispatch(listMyOrders()); //Get that user's orders, if any
@@ -47,23 +46,17 @@ const ProfileScreen = ({ location, history }) => {
         setEmail(user.email);
       }
     }
-    // return dispatch(successReset());
-  // }, [dispatch, history, userInfo, user, success]);
-  }, [dispatch, history, userInfo, user]);
+  }, [dispatch, history, userInfo, user, success]);
 
 
   const submitHandler = (e) => {
     e.preventDefault();
     setMessage('');
     if(password !== confirmPassword){
-      dispatch(successReset());
       setMessage('Passwords do not match.');
     } else {
       //Dispatch Update Profile
       dispatch(updateUserProfile({ id: user._id, name, email, password }));
-      setTimeout(() => {
-        dispatch(successReset());
-      }, 4000);
     }
   }
 
